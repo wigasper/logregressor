@@ -108,6 +108,12 @@ pub fn append_columns (a: &Matrix, b: &Matrix) -> Matrix {
     m_out
 }
 
+pub fn log_e_wise(m: &mut Matrix) {
+    for val in m.0.iter_mut() {
+        *val = (*val + 0.00001).ln();
+    }
+}
+
 pub fn sigmoid(m: &mut Matrix) { 
     for val in m.0.iter_mut() {
         *val = 1.0 / (1.0 + (-1.0 * *val).exp());
@@ -118,4 +124,58 @@ pub fn multiply_scalar(m: &mut Matrix, scalar: f64) {
     for val in m.0.iter_mut() {
         *val = scalar * *val;
     }
+}
+
+pub fn add_scalar(m: &mut Matrix, scalar: f64) {
+    for val in m.0.iter_mut() {
+        *val = scalar + *val;
+    }
+}
+
+pub fn subtract(a: &mut Matrix, b: &Matrix) {
+    if a.0.len() != b.0.len() || a.1 != b.1 {
+        panic!("utils::subtract - matrices do not have same dims!");
+    }
+
+    for idx in 0..a.0.len() {
+        if let Some(val) = a.0.get_mut(idx) {
+            *val = *val - b.0.get(idx).unwrap();
+        }
+    }
+}
+
+pub fn round(m: &mut Matrix) {
+    for val in m.0.iter_mut() {
+        if *val < 0.50 {
+            *val = 0.0;
+        } else {
+            *val = 1.0;
+        }
+    }
+}
+
+pub fn evaluate(y_hat: &Matrix, y: &Matrix) -> (f64, f64, f64, f64) {
+    let mut true_pos: f64 = 0.0;
+    let mut false_pos: f64 = 0.0;
+    let mut true_neg: f64 = 0.0;
+    let mut false_neg: f64 = 0.0;
+
+    for (idx, val) in y_hat.0.iter().enumerate() {
+        if val == &1.0 && y.0.get(idx).unwrap() == &1.0 {
+            true_pos += 1.0;
+        } else if val == &1.0 && y.0.get(idx).unwrap() == &0.0 {
+            false_pos += 1.0;
+        } else if val == &0.0 && y.0.get(idx).unwrap() == &1.0 {
+            false_neg += 1.0;
+        } else {
+            true_neg += 1.0;
+        }
+    }
+
+    let accuracy = (true_pos + true_neg) / y.0.len() as f64;
+    let precision = true_pos / (true_pos + false_pos);
+    let recall = true_pos / (true_pos + false_neg);
+    let f1 = true_pos * precision * recall / (precision + recall);
+
+    (accuracy, precision, recall, f1)
 }
