@@ -2,6 +2,18 @@
 type Element = f64;
 type Matrix = (Vec<Element>, usize);
 
+pub fn print_matrix(m: &Matrix) {
+    let n_rows = m.0.len() / m.1;
+
+    for (idx, val) in m.0.iter().enumerate() {
+        print!("{} ", val);
+        if idx > 0 && idx % n_rows == 0 {
+            print!("\n");
+        }
+    }
+    println!();
+}
+
 pub fn transpose(m: &Matrix) -> Matrix {
 	let mut m_out: Matrix = (Vec::new(), m.0.len() / m.1);
 
@@ -18,6 +30,8 @@ pub fn dot(a: &Matrix, b: &Matrix) -> Matrix {
 	let mut m_out: Matrix = (Vec::with_capacity(b.1 * a.0.len() / a.1), b.1);
 	
 	if a.1 != (b.0.len() / b.1) {
+        print_matrix(a);
+        print_matrix(b);
 		panic!("utils::dot - matrices are not conformable!");
 	}
 
@@ -134,6 +148,8 @@ pub fn add_scalar(m: &mut Matrix, scalar: f64) {
 
 pub fn subtract(a: &mut Matrix, b: &Matrix) {
     if a.0.len() != b.0.len() || a.1 != b.1 {
+        print_matrix(a);
+        print_matrix(b);
         panic!("utils::subtract - matrices do not have same dims!");
     }
 

@@ -6,8 +6,6 @@ type Matrix = (Vec<Element>, usize);
 #[derive(Default)]
 pub struct LogRegressor {
     pub theta: Matrix,
-    //pub learning_rate: f64;
-    //pub n_iters: f64;
 }
 
 impl LogRegressor {
@@ -15,19 +13,19 @@ impl LogRegressor {
         Default::default()
     }
 
-    fn gd_step(&self, X: &Matrix, y: &Matrix, learning_rate: f64) {
-        let mut temp = dot(X, &self.theta);
+    fn gd_step(&mut self, x: &Matrix, y: &Matrix, learning_rate: f64) {
+        let mut temp = dot(x, &self.theta);
         sigmoid(&mut temp);
-        temp = tdot(X, &temp);
-        //let mut temp = tdot(X, &sigmoid(&dot(X, self.theta)));
         subtract(&mut temp, y);
+        temp = tdot(x, &temp);
+        
         multiply_scalar(&mut temp, learning_rate / y.0.len() as f64);
 
         subtract(&mut self.theta, &temp);
     }
  
-    pub fn predict(&self, X: &Matrix) -> Matrix {
-        let result = dot(X, &self.theta);
+    pub fn predict(&self, x: &Matrix) -> Matrix {
+        let mut result = dot(x, &self.theta);
         sigmoid(&mut result);
         round(&mut result);
 
@@ -35,30 +33,33 @@ impl LogRegressor {
     }
 
 
-    fn loss(&self, X: &Matrix, y: &Matrix) -> f64 {
-        let mut h: Matrix = dot(X, &self.theta);
+    fn loss(&self, x: &Matrix, y: &Matrix) -> f64 {
+        let mut h: Matrix = dot(x, &self.theta);
         sigmoid(&mut h);
-        //let h: Matrix = sigmoid(&mut dot(X, self.theta));
-        let h_copy = h.to_owned();
+        
+        let mut h_copy = h.to_owned();
+        let mut y_copy = y.to_owned();
 
-        let epsilon = 0.00001;
-        multiply_scalar(&mut y, -1.0);
+        multiply_scalar(&mut y_copy, -1.0);
         log_e_wise(&mut h);
         let term_0 = tdot(y, &h);
 
         multiply_scalar(&mut h_copy, -1.0);
         add_scalar(&mut h_copy, 1.0);
         log_e_wise(&mut h_copy);
-        add_scalar(&mut y, 1.0);
-        let term_1 = tdot(y, &h_copy);
+        add_scalar(&mut y_copy, 1.0);
+        let term_1 = tdot(&y_copy, &h_copy);
         
-        let cost = (1.0 / y.0.len() as f64) * (term_0.0.get(0).unwrap() - term_1.0.get(0).unwrap());
-        
-        cost
+        // TODO make this nicer:
+        if term_0.0.len() != 1 || term_1.0.len() != 1 {
+            panic!("model::loss - term_0 or term_1 len is not 1");
+        }
+
+        (1.0 / y.0.len() as f64) * (term_0.0.get(0).unwrap() - term_1.0.get(0).unwrap())
     }  
 
-    pub fn train(&self, X_in: &Matrix, y: &Matrix, n_iters: usize, 
-                 mut learning_rate: f64) {
+    pub fn train(&mut self, x_in: &Matrix, y: &Matrix, n_iters: usize, 
+                 learning_rate: f64) {
         // prepend column of 1s to X
         let mut ones: Matrix = (Vec::with_capacity(y.0.len()), 1);
 
@@ -66,20 +67,29 @@ impl LogRegressor {
             ones.0.push(1.0);
         }
 
-        let X: Matrix = append_columns(&ones, &X_in);
-        self.theta = zeros_matrix(X.1, 1);
+        let x: Matrix = append_columns(&ones, &x_in);
+        self.theta = zeros_matrix(x.1, 1);
 
         let mut losses: Vec<f64> = Vec::new();
 
         // gradient descent
         for _ in 0..n_iters {
-            self.gd_step(&X, y, learning_rate);
-            losses.push(self.loss(&X, y));
+            self.gd_step(&x, y, learning_rate);
+            losses.push(self.loss(&x, y));
         }
     }
     
-    pub fn test(&self, X: &Matrix, y: &Matrix) {
-        let y_hat: Matrix = self.predict(X);
+    pub fn test(&self, x_in: &Matrix, y: &Matrix) {
+        // prepend column of 1s to X
+        let mut ones: Matrix = (Vec::with_capacity(y.0.len()), 1);
+
+        for _ in 0..y.0.len() {
+            ones.0.push(1.0);
+        }
+
+        let x: Matrix = append_columns(&ones, &x_in);
+
+        let y_hat: Matrix = self.predict(&x);
         let metrics = evaluate(&y_hat, y);
 
         println!("Accuracy: {}", metrics.0);
