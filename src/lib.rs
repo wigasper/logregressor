@@ -1,4 +1,5 @@
 pub mod utils;
+pub mod model;
 
 #[cfg(test)]
 mod tests {
