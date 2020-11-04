@@ -191,7 +191,7 @@ pub fn evaluate(y_hat: &Matrix, y: &Matrix) -> (f64, f64, f64, f64) {
     let accuracy = (true_pos + true_neg) / y.0.len() as f64;
     let precision = true_pos / (true_pos + false_pos);
     let recall = true_pos / (true_pos + false_neg);
-    let f1 = true_pos * precision * recall / (precision + recall);
+    let f1 = 2.0 * precision * recall / (precision + recall);
 
     (accuracy, precision, recall, f1)
 }

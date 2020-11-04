@@ -8,6 +8,8 @@ pub struct LogRegressor {
     pub theta: Matrix,
 }
 
+// PMC2732298
+//
 impl LogRegressor {
     pub fn new() -> Self {
         Default::default()
@@ -76,6 +78,7 @@ impl LogRegressor {
         for _ in 0..n_iters {
             self.gd_step(&x, y, learning_rate);
             losses.push(self.loss(&x, y));
+//            println!("Loss: {}", losses.last().unwrap());
         }
     }
     
