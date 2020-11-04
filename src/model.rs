@@ -35,7 +35,7 @@ impl LogRegressor {
     }
 
 
-    fn loss(&self, x: &Matrix, y: &Matrix) -> f64 {
+    pub fn loss(&self, x: &Matrix, y: &Matrix) -> f64 {
         let mut h: Matrix = dot(x, &self.theta);
         sigmoid(&mut h);
         
@@ -78,7 +78,6 @@ impl LogRegressor {
         for _ in 0..n_iters {
             self.gd_step(&x, y, learning_rate);
             losses.push(self.loss(&x, y));
-//            println!("Loss: {}", losses.last().unwrap());
         }
     }
     
