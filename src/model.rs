@@ -61,7 +61,7 @@ impl LogRegressor {
     }  
 
     pub fn train(&mut self, x_in: &Matrix, y: &Matrix, n_iters: usize, 
-                 learning_rate: f64) {
+                 learning_rate: f64) -> f64 {
         // prepend column of 1s to X
         let mut ones: Matrix = (Vec::with_capacity(y.0.len()), 1);
 
@@ -79,6 +79,8 @@ impl LogRegressor {
             self.gd_step(&x, y, learning_rate);
             losses.push(self.loss(&x, y));
         }
+
+        losses.last().unwrap()
     }
     
     pub fn test(&self, x_in: &Matrix, y: &Matrix) {
