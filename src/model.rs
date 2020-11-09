@@ -80,7 +80,7 @@ impl LogRegressor {
             losses.push(self.loss(&x, y));
         }
 
-        losses.last().unwrap()
+        losses.last().unwrap().to_owned()
     }
     
     pub fn test(&self, x_in: &Matrix, y: &Matrix) {
