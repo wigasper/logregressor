@@ -3,11 +3,11 @@ type Element = f64;
 type Matrix = (Vec<Element>, usize);
 
 pub fn print_matrix(m: &Matrix) {
-    let n_rows = m.0.len() / m.1;
+    //let n_rows = m.0.len() / m.1;
 
     for (idx, val) in m.0.iter().enumerate() {
         print!("{} ", val);
-        if idx > 0 && idx % n_rows == 0 {
+        if idx > 0 && idx % m.1 == 0 {
             print!("\n");
         }
     }
