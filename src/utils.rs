@@ -6,10 +6,10 @@ pub fn print_matrix(m: &Matrix) {
     //let n_rows = m.0.len() / m.1;
 
     for (idx, val) in m.0.iter().enumerate() {
-        print!("{} ", val);
         if idx > 0 && idx % m.1 == 0 {
             print!("\n");
         }
+        print!("{} ", val);
     }
     println!();
 }
